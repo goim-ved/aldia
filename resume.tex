@@ -1,0 +1,151 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+
+\definecolor{linkblue}{RGB}{0,90,200}
+\newcommand{\linktext}[2]{\href{#1}{\textcolor{linkblue}{\underline{#2}}}}
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins for optimal ATS parsing and space utilization
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.6in}
+\addtolength{\textheight}{1.2in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-5pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titrule \vspace{-6pt}]
+
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \small#2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    \textbf{\Huge \scshape Vedant A. Goim} \\ \vspace{1pt}
+    \small
+    \faPhone\ +91 9136723152 $|$
+    \href{mailto:vedantgoim1@gmail.com}{\faEnvelope\ \underline{vedantgoim1@gmail.com}} $|$
+    \href{https://www.linkedin.com/in/vedant-g-7934863ab/?skipRedirect=true}{\faLinkedin\ \underline{linkedin.com/in/vedant-g-7934863ab}} $|$
+    \href{https://github.com/goim-ved}{\faGithub\ \underline{github.com/goim-ved}}
+\end{center}
+
+%-----------TECHNICAL SKILLS-----------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages}{: Java (Java 21), C++ (C++17/20), Python, SQL (PostgreSQL, MySQL), TypeScript/JavaScript} \\
+     \textbf{Systems \& Architecture}{: Distributed Task Processing, Multithreading, Concurrency, Low-Latency Design, Socket Programming (UDP/TCP), OOP, Linux} \\
+     \textbf{Backend \& Frameworks}{: FastAPI, Celery, SQLAlchemy (Async), Spring Boot, Spring Data JPA, RESTful APIs, Redis, Docker, Git} \\
+     \textbf{Tooling \& Testing}{: Pytest, Alembic, Postman, Gemini API (LLM Integration), Prompt Engineering, Google Benchmark, Valgrind}
+    }}
+ \end{itemize}
+
+%-----------PROJECTS-----------
+\section{Projects}
+    \resumeSubHeadingListStart
+
+      \resumeProjectHeading
+          {\textbf{\linktext{https://github.com/goim-ved/Aldia}{Aldia: Asynchronous Webhook Delivery Engine}} $|$ \emph{Python 3.12, FastAPI, Celery, Redis, PostgreSQL, SQLAlchemy 2.0}}
+          {\href{https://github.com/goim-ved/Aldia}{\faGithub\ \underline{Code}}}
+          \resumeItemListStart
+            \resumeItem{Architected a production-grade asynchronous webhook delivery platform in \textbf{Python 3.12} and \textbf{FastAPI} using \textbf{SQLAlchemy 2.0 (asyncpg)} and \textbf{PostgreSQL} with automated \textbf{Alembic} migrations.}
+            \resumeItem{Engineered distributed background workers using \textbf{Celery} and \textbf{Redis}, implementing \textbf{HMAC-SHA256} payload signing for cryptographic integrity and exponential backoff retries (\emph{5s, 15s, 45s}) for resilient HTTP delivery.}
+            \resumeItem{Built an atomic \textbf{Redis sliding-window rate limiter} to protect trigger endpoints, integrated JWT authentication, delivery attempt telemetry logging, and multi-container deployment via \textbf{Docker Compose}.}
+          \resumeItemListEnd
+
+      \resumeProjectHeading
+          {\textbf{\linktext{https://github.com/goim-ved/copilot-support-triage}{AI-Powered Support Desk \& Ticket Triaging System}} $|$ \emph{Java 21, Spring Boot, React, Gemini API}}
+          {\href{https://github.com/goim-ved/copilot-support-triage}{\faGithub\ \underline{Code}}}
+          \resumeItemListStart
+            \resumeItem{Architected a full-stack enterprise support desk in \textbf{Java 21 (Spring Boot)} and \textbf{React 18} using \textbf{PostgreSQL} and \textbf{Spring Data JPA} for relational thread history and auditing.}
+            \resumeItem{Implemented structured \textbf{few-shot JSON system prompts} with the \textbf{Google Gemini API} to classify priority, detect sentiment, extract key pain points, and compute 1--10 urgency ratings in \textbf{$<$420ms}.}
+            \resumeItem{Engineered a zero-dependency \textbf{heuristic NLP fallback engine} and a 1-click multi-tone draft refiner (\emph{Empathetic, Technical, Concise, Formal}), backed by Vercel Serverless Functions and a PowerBI-style dashboard.}
+          \resumeItemListEnd
+
+      \resumeProjectHeading
+          {\textbf{\linktext{https://github.com/goim-ved/zero-point}{Market Data Feed Handler}} $|$ \emph{C++20, Concurrency, Quantitative Development}}
+          {\href{https://github.com/goim-ved/zero-point}{\faGithub\ \underline{Code}}}
+          \resumeItemListStart
+            \resumeItem{Built a multi-threaded, low-latency market data feed handler in \textbf{C++20} to process custom packed binary messages over UDP sockets.}
+            \resumeItem{Designed a decoupled architecture separating the socket receiver thread from the message parser using a thread-safe \textbf{concurrent queue} to prevent packet loss under heavy load.}
+            \resumeItem{Engineered a real-time L2 order book maintaining bids and asks up to a depth of 5 levels using cache-friendly sorted vectors, handling price level updates, cancellations, and trade executions.}
+          \resumeItemListEnd
+
+    \resumeSubHeadingListEnd
+
+%-----------EXPERIENCE-----------
+\section{Experience}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Versatyle}{Mumbai, Maharashtra}
+      {Backend Developer Intern}{May 2026 -- Present}
+      \resumeItemListStart
+        \resumeItem{Designed an idempotent, leased background reconciliation engine (WS-3) and Razorpay webhook pipeline to resolve payment and state inconsistencies, securing 100\% database convergence across peer-to-peer checkouts.}
+        \resumeItem{Built a temporary inventory reservation and availability-locking mechanism utilizing database write-locks to prevent double-booking race conditions, eliminating overbooking errors during checkout.}
+        \resumeItem{Hardened API security and platform integrity by implementing rate limiters, CSRF validation, server-side image header checks, and audit logging, mitigating web vulnerabilities with full action traceability.}
+        \resumeItem{Developed a modular, tenant-isolated notification microservice and an idempotent seeding engine, automating alerts for critical booking milestones while establishing a stable local developer sandbox.}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {\parbox{0.7\textwidth}{Vivekanand Education Society's\\ College of Arts, Science and Commerce, Chembur}}{Mumbai, Maharashtra}
+      {Bachelor of Science in Computer Science}{June 2023 -- May 2026}
+      \resumeItemListStart
+        \resumeItem{\textbf{GPA:} 7.69/10}
+        \resumeItem{\textbf{Relevant Coursework:} Data Structures \& Algorithms, Database Management Systems (SQL), Probability \& Statistics, Linear Algebra}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+\end{document}

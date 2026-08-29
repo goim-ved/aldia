@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  # PostgreSQL 16 Database
+  db:
+    image: postgres:16-alpine
+    container_name: webhook_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-webhook_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-webhook_password}
+      POSTGRES_DB: ${POSTGRES_DB:-webhook_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-webhook_user} -d ${POSTGRES_DB:-webhook_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis In-Memory Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: webhook_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Web Application API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webhook_api
+    restart: unless-stopped
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=async-webhook-engine
+      - APP_ENV=development
+      - DEBUG=True
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production-12345678}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-webhook_user}:${POSTGRES_PASSWORD:-webhook_password}@db:5432/${POSTGRES_DB:-webhook_db}
+      - SYNC_DATABASE_URL=postgresql://${POSTGRES_USER:-webhook_user}:${POSTGRES_PASSWORD:-webhook_password}@db:5432/${POSTGRES_DB:-webhook_db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Celery Background Dispatch Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webhook_worker
+    restart: unless-stopped
+    command: celery -A app.tasks.celery_app.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - APP_NAME=async-webhook-engine
+      - APP_ENV=development
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production-12345678}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-webhook_user}:${POSTGRES_PASSWORD:-webhook_password}@db:5432/${POSTGRES_DB:-webhook_db}
+      - SYNC_DATABASE_URL=postgresql://${POSTGRES_USER:-webhook_user}:${POSTGRES_PASSWORD:-webhook_password}@db:5432/${POSTGRES_DB:-webhook_db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
