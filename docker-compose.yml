@@ -45,6 +45,7 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - PYTHONPATH=/app
       - APP_NAME=async-webhook-engine
       - APP_ENV=development
       - DEBUG=True
@@ -70,6 +71,7 @@ services:
     restart: unless-stopped
     command: celery -A app.tasks.celery_app.celery_app worker --loglevel=info --concurrency=4
     environment:
+      - PYTHONPATH=/app
       - APP_NAME=async-webhook-engine
       - APP_ENV=development
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production-12345678}
