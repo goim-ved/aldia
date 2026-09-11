@@ -1,5 +1,3 @@
-"""Authentication router for registration, login, and user profile."""
-
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -28,8 +26,6 @@ async def register(
     user_in: UserRegister,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> User:
-    """Create a new user with hashed password."""
-    # Check for existing email
     stmt = select(User).where(User.email == user_in.email)
     result = await db.execute(stmt)
     existing_user = result.scalar_one_or_none()
@@ -39,7 +35,6 @@ async def register(
             detail="A user with this email address already exists.",
         )
 
-    # Hash password and persist user
     new_user = User(
         email=user_in.email,
         hashed_password=get_password_hash(user_in.password),
@@ -61,7 +56,6 @@ async def login(
     credentials: UserLogin,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Token:
-    """Verify email and password, returning a signed JWT access token."""
     stmt = select(User).where(User.email == credentials.email)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
@@ -91,5 +85,4 @@ async def login(
 async def read_current_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    """Retrieve profile data for the authenticated user."""
     return current_user

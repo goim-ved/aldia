@@ -1,5 +1,3 @@
-"""FastAPI main application entrypoint with lifespan events, CORS, and routing."""
-
 from contextlib import asynccontextmanager
 import logging
 from typing import AsyncGenerator
@@ -13,7 +11,6 @@ from app.config import get_settings
 from app.database import engine
 from app.utils.rate_limiter import close_redis_client, get_redis_client
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -24,21 +21,15 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Lifespan event handler for application startup and shutdown tasks."""
-    logger.info("Initializing Async Webhook Engine application...")
-
-    # Validate Redis connection on startup
     try:
         redis_client = await get_redis_client()
         await redis_client.ping()
         logger.info("Redis connection established successfully.")
     except Exception as exc:
-        logger.warning("Redis initial connection warning (may fail open): %s", exc)
+        logger.warning("Redis initial connection warning: %s", exc)
 
     yield
 
-    # Cleanup resources on shutdown
-    logger.info("Shutting down Async Webhook Engine application...")
     await close_redis_client()
     await engine.dispose()
     logger.info("Database and Redis connections closed.")
@@ -57,7 +48,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -66,7 +56,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register API routes
 app.include_router(api_router)
 
 
@@ -77,18 +66,15 @@ app.include_router(api_router)
     status_code=status.HTTP_200_OK,
 )
 async def health_check() -> JSONResponse:
-    """Verify application health and database connectivity."""
     db_status = "healthy"
     redis_status = "healthy"
 
-    # Check Database
     try:
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
     except Exception as err:
         db_status = f"unhealthy: {err}"
 
-    # Check Redis
     try:
         redis_client = await get_redis_client()
         await redis_client.ping()
@@ -117,7 +103,6 @@ async def health_check() -> JSONResponse:
     summary="Root landing information",
 )
 async def root() -> dict[str, str]:
-    """Root endpoint welcoming visitors and linking to interactive docs."""
     return {
         "message": "Welcome to the Async Webhook Delivery Engine API",
         "documentation": "/docs",

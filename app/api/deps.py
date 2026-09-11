@@ -1,5 +1,3 @@
-"""FastAPI dependency injection providers: Database sessions, Auth, and Rate Limiting."""
-
 from typing import Annotated
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
@@ -22,19 +20,6 @@ async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> User:
-    """Validate bearer token and retrieve the current authenticated User.
-
-    Args:
-        request: Incoming HTTP request.
-        token: Bearer JWT token from Authorization header.
-        db: Async database session.
-
-    Returns:
-        User: Authenticated User ORM model.
-
-    Raises:
-        HTTPException: 401 Unauthorized if token is invalid or user not found.
-    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -67,11 +52,9 @@ async def get_current_user(
             detail="User account is inactive",
         )
 
-    # Attach user_id to request state for rate limiting & logging
     request.state.user_id = user.id
     return user
 
 
-# Common reusable rate limiter dependencies
 rate_limit_dispatch = RateLimiter(requests_limit=30, window_seconds=60)
 rate_limit_auth = RateLimiter(requests_limit=15, window_seconds=60)

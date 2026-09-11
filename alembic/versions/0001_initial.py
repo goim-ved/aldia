@@ -1,16 +1,7 @@
-"""Initial migration creating users, webhook_targets, and webhook_logs tables.
-
-Revision ID: 0001_initial
-Revises: 
-Create Date: 2026-08-24 12:00:00.000000
-
-"""
 from typing import Sequence, Union
-
 from alembic import op
 import sqlalchemy as sa
 
-# revision identifiers, used by Alembic.
 revision: str = "0001_initial"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
@@ -18,7 +9,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # 1. Create users table
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
@@ -32,7 +22,6 @@ def upgrade() -> None:
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
 
-    # 2. Create webhook_targets table
     op.create_table(
         "webhook_targets",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
@@ -51,7 +40,6 @@ def upgrade() -> None:
     op.create_index(op.f("ix_webhook_targets_user_id"), "webhook_targets", ["user_id"], unique=False)
     op.create_index(op.f("ix_webhook_targets_is_active"), "webhook_targets", ["is_active"], unique=False)
 
-    # 3. Create webhook_logs table
     op.create_table(
         "webhook_logs",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),

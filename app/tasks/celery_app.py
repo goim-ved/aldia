@@ -1,5 +1,3 @@
-"""Celery application instance and configuration."""
-
 from celery import Celery
 
 from app.config import get_settings
@@ -22,5 +20,5 @@ celery_app.conf.update(
     task_track_started=True,
     task_acks_late=True,
     worker_prefetch_multiplier=1,
-    result_expires=86400,  # 24 hours
+    result_expires=86400,
 )

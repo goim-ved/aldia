@@ -1,5 +1,3 @@
-"""Webhook management and dispatch trigger API router."""
-
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import desc, select
@@ -33,7 +31,6 @@ async def create_webhook_target(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WebhookTarget:
-    """Create a new webhook endpoint with an HMAC secret token."""
     secret = target_in.secret_token or generate_secure_token(24)
 
     webhook = WebhookTarget(
@@ -61,7 +58,6 @@ async def list_webhook_targets(
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[WebhookTarget]:
-    """List paginated webhook endpoints created by the current user."""
     stmt = (
         select(WebhookTarget)
         .where(WebhookTarget.user_id == current_user.id)
@@ -83,7 +79,6 @@ async def get_webhook_target(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WebhookTarget:
-    """Retrieve details for a specific webhook target."""
     stmt = select(WebhookTarget).where(
         WebhookTarget.id == target_id,
         WebhookTarget.user_id == current_user.id,
@@ -110,7 +105,6 @@ async def update_webhook_target(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WebhookTarget:
-    """Update properties of an existing webhook endpoint."""
     stmt = select(WebhookTarget).where(
         WebhookTarget.id == target_id,
         WebhookTarget.user_id == current_user.id,
@@ -147,7 +141,6 @@ async def delete_webhook_target(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Response:
-    """Delete a webhook endpoint and all its delivery logs."""
     stmt = select(WebhookTarget).where(
         WebhookTarget.id == target_id,
         WebhookTarget.user_id == current_user.id,
@@ -177,7 +170,6 @@ async def trigger_webhook_event(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> WebhookDispatchResult:
-    """Publish an event, queuing Celery background dispatch tasks for all matching active targets."""
     stmt = select(WebhookTarget).where(
         WebhookTarget.user_id == current_user.id,
         WebhookTarget.is_active.is_(True),
@@ -185,7 +177,6 @@ async def trigger_webhook_event(
     result = await db.execute(stmt)
     targets = list(result.scalars().all())
 
-    # Find targets subscribed to '*' or matching the specific event
     matching_targets = [
         t for t in targets
         if "*" in t.subscribed_events or event_data.event_type in t.subscribed_events
@@ -220,8 +211,6 @@ async def get_webhook_logs(
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[WebhookLog]:
-    """Retrieve historical delivery attempts and responses for a target."""
-    # Ensure user owns target
     target_stmt = select(WebhookTarget).where(
         WebhookTarget.id == target_id,
         WebhookTarget.user_id == current_user.id,

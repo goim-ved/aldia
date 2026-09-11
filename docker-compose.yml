@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # PostgreSQL 16 Database
   db:
     image: postgres:16-alpine
     container_name: webhook_postgres
@@ -20,7 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis In-Memory Cache & Message Broker
   redis:
     image: redis:7-alpine
     container_name: webhook_redis
@@ -35,7 +33,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # FastAPI Web Application API
   api:
     build:
       context: .
@@ -65,7 +62,6 @@ services:
       redis:
         condition: service_healthy
 
-  # Celery Background Dispatch Worker
   worker:
     build:
       context: .

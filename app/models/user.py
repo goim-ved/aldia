@@ -1,5 +1,3 @@
-"""User SQLAlchemy ORM Model."""
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, DateTime, Integer, String, func
@@ -12,8 +10,6 @@ if TYPE_CHECKING:
 
 
 class User(Base):
-    """User account entity."""
-
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -32,7 +28,6 @@ class User(Base):
         nullable=False,
     )
 
-    # Relationships
     webhook_targets: Mapped[list["WebhookTarget"]] = relationship(
         "WebhookTarget",
         back_populates="user",

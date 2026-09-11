@@ -1,5 +1,3 @@
-"""Application Configuration Module using Pydantic Settings."""
-
 from functools import lru_cache
 from typing import Literal
 from pydantic import Field
@@ -7,8 +5,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Central application settings and environment configuration."""
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -16,7 +12,6 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # General App Settings
     APP_NAME: str = Field(default="async-webhook-engine", description="Application name")
     APP_ENV: Literal["development", "testing", "production"] = Field(
         default="development", description="Current environment mode"
@@ -25,7 +20,6 @@ class Settings(BaseSettings):
     PORT: int = Field(default=8000, description="Web server port")
     HOST: str = Field(default="0.0.0.0", description="Web server host")
 
-    # Security & JWT Auth
     SECRET_KEY: str = Field(
         default="change-this-super-secret-key-in-production-use-openssl-rand-hex-32",
         description="Secret key for JWT token and signature generation",
@@ -35,7 +29,6 @@ class Settings(BaseSettings):
         default=60, description="Access token expiration time in minutes"
     )
 
-    # PostgreSQL Database
     DATABASE_URL: str = Field(
         default="postgresql+asyncpg://webhook_user:webhook_password@localhost:5432/webhook_db",
         description="Async PostgreSQL connection URL",
@@ -45,7 +38,6 @@ class Settings(BaseSettings):
         description="Sync PostgreSQL connection URL for Celery worker & Alembic",
     )
 
-    # Redis & Celery
     REDIS_URL: str = Field(
         default="redis://localhost:6379/0",
         description="Redis connection URL for caching and rate limiting",
@@ -59,7 +51,6 @@ class Settings(BaseSettings):
         description="Celery result backend URL",
     )
 
-    # Rate Limiting
     RATE_LIMIT_REQUESTS: int = Field(
         default=60, description="Allowed request count per sliding window"
     )
@@ -67,7 +58,6 @@ class Settings(BaseSettings):
         default=60, description="Sliding window duration in seconds"
     )
 
-    # Webhook Worker Settings
     WEBHOOK_TIMEOUT_SECONDS: int = Field(
         default=10, description="HTTP timeout for webhook delivery in seconds"
     )
@@ -82,5 +72,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Return a cached Settings singleton instance."""
     return Settings()

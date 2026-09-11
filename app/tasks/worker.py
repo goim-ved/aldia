@@ -1,5 +1,3 @@
-"""Celery background worker task for robust HTTP webhook dispatch."""
-
 from contextlib import contextmanager
 import json
 import logging
@@ -21,7 +19,6 @@ settings = get_settings()
 
 @contextmanager
 def get_sync_db() -> Generator[Session, None, None]:
-    """Provide a transactional synchronous database session for Celery workers."""
     session = SyncSessionLocal()
     try:
         yield session
@@ -44,7 +41,6 @@ def _log_delivery_attempt(
     execution_duration_ms: float | None = None,
     error_message: str | None = None,
 ) -> None:
-    """Helper function to record delivery attempt in the database."""
     try:
         with get_sync_db() as db:
             log_entry = WebhookLog(
@@ -75,10 +71,8 @@ def dispatch_webhook_task(
     event_type: str,
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    """Dispatch webhook POST request to target URL with HMAC signature and exponential backoff."""
     attempt_count = self.request.retries + 1
 
-    # Fetch target details
     with get_sync_db() as db:
         target = db.query(WebhookTarget).filter(WebhookTarget.id == webhook_id).first()
         if not target or not target.is_active:
@@ -91,7 +85,6 @@ def dispatch_webhook_task(
         target_url = target.target_url
         secret_token = target.secret_token
 
-    # Serialize payload and compute HMAC-SHA256 signature
     payload_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
     signature = generate_hmac_signature(secret_token, payload_bytes)
     timestamp = str(int(time.time()))
@@ -159,7 +152,6 @@ def dispatch_webhook_task(
             "attempt": attempt_count,
         }
 
-    # Handle delivery failure & retries
     if self.request.retries < self.max_retries:
         retry_delays = settings.WEBHOOK_RETRY_DELAYS
         countdown = (
@@ -191,7 +183,6 @@ def dispatch_webhook_task(
             countdown=countdown,
         )
 
-    # All retries exhausted
     _log_delivery_attempt(
         webhook_id=webhook_id,
         event_type=event_type,

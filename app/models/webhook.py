@@ -1,5 +1,3 @@
-"""WebhookTarget and WebhookLog SQLAlchemy ORM Models."""
-
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from sqlalchemy import (
@@ -22,8 +20,6 @@ if TYPE_CHECKING:
 
 
 class WebhookTarget(Base):
-    """Registered webhook destination endpoint."""
-
     __tablename__ = "webhook_targets"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -54,7 +50,6 @@ class WebhookTarget(Base):
         nullable=False,
     )
 
-    # Relationships
     user: Mapped["User"] = relationship("User", back_populates="webhook_targets")
     logs: Mapped[list["WebhookLog"]] = relationship(
         "WebhookLog",
@@ -69,8 +64,6 @@ class WebhookTarget(Base):
 
 
 class WebhookLog(Base):
-    """Log record for every webhook dispatch attempt."""
-
     __tablename__ = "webhook_logs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -90,7 +83,7 @@ class WebhookLog(Base):
         String(30),
         nullable=False,
         index=True,
-    )  # "SUCCESS", "FAILED", "RETRYING"
+    )
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -99,7 +92,6 @@ class WebhookLog(Base):
         index=True,
     )
 
-    # Relationships
     webhook_target: Mapped["WebhookTarget"] = relationship(
         "WebhookTarget",
         back_populates="logs",

@@ -1,5 +1,3 @@
-"""Database configuration and session management for Async SQLAlchemy 2.0."""
-
 from collections.abc import AsyncGenerator
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import (
@@ -14,7 +12,6 @@ from app.config import get_settings
 
 settings = get_settings()
 
-# Async Engine for FastAPI async operations
 engine: AsyncEngine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
@@ -24,7 +21,6 @@ engine: AsyncEngine = create_async_engine(
     max_overflow=20,
 )
 
-# Async Session Factory
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -33,7 +29,6 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False,
 )
 
-# Synchronous Engine and Session for Celery worker and background sync logging
 sync_engine = create_engine(
     settings.SYNC_DATABASE_URL,
     pool_pre_ping=True,
@@ -50,17 +45,10 @@ SyncSessionLocal = sessionmaker(
 
 
 class Base(DeclarativeBase):
-    """Base class for all SQLAlchemy declarative models."""
-
     pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """Dependency generator providing transactional async database sessions.
-
-    Yields:
-        AsyncSession: Active async database session.
-    """
     async with AsyncSessionLocal() as session:
         try:
             yield session
