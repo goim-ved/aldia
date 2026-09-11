@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,15 +9,12 @@ from app.models.user import User
 from app.utils.rate_limiter import RateLimiter, get_redis_client
 from app.utils.security import decode_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/auth/login",
-    description="JWT Bearer token authentication",
-)
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
     request: Request,
-    token: Annotated[str, Depends(oauth2_scheme)],
+    auth: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> User:
     credentials_exception = HTTPException(
@@ -26,7 +23,10 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    payload = decode_access_token(token)
+    if not auth or not auth.credentials:
+        raise credentials_exception
+
+    payload = decode_access_token(auth.credentials)
     if payload is None:
         raise credentials_exception
 
